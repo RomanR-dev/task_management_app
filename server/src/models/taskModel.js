@@ -27,6 +27,17 @@ const taskSchema = new mongoose.Schema(
       enum: ['pending', 'in-progress', 'completed', 'overdue'],
       default: 'pending',
     },
+    tags: {
+      type: [String],
+      default: [],
+      validate: {
+        validator: function(tags) {
+          // Ensure each tag is unique
+          return new Set(tags).size === tags.length;
+        },
+        message: 'Tags must be unique'
+      }
+    },
     user: {
       type: mongoose.Schema.ObjectId,
       ref: 'User',
@@ -42,6 +53,7 @@ const taskSchema = new mongoose.Schema(
 
 // Create index for faster queries
 taskSchema.index({ user: 1, dueDate: 1 });
+taskSchema.index({ tags: 1 }); // Add index for tags for faster filtering
 
 // Virtual property to check if task is overdue
 taskSchema.virtual('isOverdue').get(function () {

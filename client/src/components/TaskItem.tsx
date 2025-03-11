@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { format } from 'date-fns';
 
@@ -10,15 +10,21 @@ interface TaskItemProps {
     dueDate: string;
     priority: 'low' | 'medium' | 'high';
     status: 'pending' | 'in-progress' | 'completed' | 'overdue';
+    tags?: string[];
   };
   onDelete: (id: string) => void;
   onStatusChange: (id: string, status: string) => void;
 }
 
 const TaskItem: React.FC<TaskItemProps> = ({ task, onDelete, onStatusChange }) => {
-  const { _id, title, description, dueDate, priority, status } = task;
+  const { _id, title, description, dueDate, priority, status, tags = [] } = task;
   const [showActions, setShowActions] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+
+  // Debug log
+  // useEffect(() => {
+  //   console.debug(`Task ${_id} tags:`, tags);
+  // }, [_id, tags]);
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
@@ -93,7 +99,7 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onDelete, onStatusChange }) =
     <div
       className={`bg-white dark:bg-gray-800 rounded-lg ${isHovered ? 'shadow-card-hover dark:shadow-dark-card-hover' : 'shadow-card dark:shadow-dark-card'} p-4 mb-4 border-l-4 ${getPriorityColor(
         priority
-      )} ${status === 'completed' ? 'opacity-70' : ''} transition-all duration-300 transform ${isHovered ? 'scale-[1.01]' : 'scale-100'}`}
+      )} ${status === 'completed' ? 'opacity-70' : ''} transition-all duration-300 transform ${isHovered ? 'scale-[1.01]' : 'scale-100'} animate-popIn`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -106,13 +112,13 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onDelete, onStatusChange }) =
                 status === 'completed'
                   ? 'bg-green-500 border-green-500 text-white'
                   : 'border-gray-300 dark:border-gray-600 hover:border-green-500 dark:hover:border-green-400'
-              } flex items-center justify-center focus:outline-none transition-colors duration-200`}
+              } flex items-center justify-center focus:outline-none transition-colors duration-200 hover:scale-110 transform`}
               aria-label={status === 'completed' ? 'Mark as incomplete' : 'Mark as complete'}
             >
               {status === 'completed' && (
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="h-4 w-4"
+                  className="h-4 w-4 animate-popIn"
                   viewBox="0 0 20 20"
                   fill="currentColor"
                 >
@@ -138,7 +144,7 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onDelete, onStatusChange }) =
               <span
                 className={`px-2 py-1 rounded-full mr-2 flex items-center ${
                   isOverdue() ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300' : 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300'
-                }`}
+                } hover:scale-105 transform transition-transform duration-200`}
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -156,7 +162,7 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onDelete, onStatusChange }) =
                 </svg>
                 {formatDueDate()}
               </span>
-              <span className={`px-2 py-1 rounded-full mr-2 flex items-center ${getStatusColor(status)}`}>
+              <span className={`px-2 py-1 rounded-full mr-2 flex items-center ${getStatusColor(status)} hover:scale-105 transform transition-transform duration-200`}>
                 {status === 'completed' && (
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -230,12 +236,25 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onDelete, onStatusChange }) =
                     : priority === 'medium'
                     ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300'
                     : 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300'
-                }`}
+                } hover:scale-105 transform transition-transform duration-200`}
               >
                 {getPriorityIcon(priority)}
                 {priority.charAt(0).toUpperCase() + priority.slice(1)}
               </span>
             </div>
+            
+            {tags && tags.length > 0 && (
+              <div className="flex flex-wrap gap-1 mt-2">
+                {tags.map((tag, index) => (
+                  <span 
+                    key={index} 
+                    className="bg-primary-100 dark:bg-primary-900 text-primary-800 dark:text-primary-200 text-xs px-2 py-1 rounded-full animate-fadeIn animate-delay-100 hover:scale-105 transform transition-transform duration-200 font-medium"
+                  >
+                    #{tag}
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 

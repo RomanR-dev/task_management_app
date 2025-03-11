@@ -46,6 +46,7 @@ interface TaskFormData {
   dueDate: string;
   priority: 'low' | 'medium' | 'high';
   status: 'pending' | 'in-progress' | 'completed' | 'overdue';
+  tags: string[];
 }
 
 const TaskForm: React.FC = () => {
@@ -53,12 +54,15 @@ const TaskForm: React.FC = () => {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [tagInput, setTagInput] = useState<string>('');
+  const [tags, setTags] = useState<string[]>([]);
 
   const {
     register,
     handleSubmit,
     formState: { errors },
     setValue,
+    watch,
   } = useForm<TaskFormData>({
     defaultValues: {
       title: '',
@@ -66,8 +70,18 @@ const TaskForm: React.FC = () => {
       dueDate: new Date().toISOString().split('T')[0],
       priority: 'medium',
       status: 'pending',
+      tags: [],
     },
   });
+
+  // Watch tags to keep local state in sync
+  const watchedTags = watch('tags');
+
+  useEffect(() => {
+    if (watchedTags) {
+      setTags(watchedTags);
+    }
+  }, [watchedTags]);
 
   useEffect(() => {
     if (id) {
@@ -89,6 +103,8 @@ const TaskForm: React.FC = () => {
       setValue('dueDate', formattedDate);
       setValue('priority', task.priority);
       setValue('status', task.status);
+      setValue('tags', task.tags || []);
+      setTags(task.tags || []);
     } catch (error) {
       toast.error('Failed to fetch task details');
       navigate('/dashboard');
@@ -97,15 +113,45 @@ const TaskForm: React.FC = () => {
     }
   };
 
+  const handleAddTag = () => {
+    if (tagInput.trim() && !tags.includes(tagInput.trim())) {
+      const newTags = [...tags, tagInput.trim()];
+      setTags(newTags);
+      setValue('tags', newTags);
+      setTagInput('');
+    }
+  };
+
+  const handleRemoveTag = (tagToRemove: string) => {
+    const newTags = tags.filter(tag => tag !== tagToRemove);
+    setTags(newTags);
+    setValue('tags', newTags);
+  };
+
+  const handleTagKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleAddTag();
+    }
+  };
+
   const onSubmit = async (data: TaskFormData) => {
     try {
       setIsSubmitting(true);
       
+      // Make sure tags are included in the submission
+      // If data.tags is an object with numeric keys (from the array inputs), convert it back to an array
+      if (data.tags && typeof data.tags === 'object' && !Array.isArray(data.tags)) {
+        data.tags = Object.values(data.tags);
+      }
+      
+      console.log('Submitting task with tags:', data.tags);
+      
       if (id) {
-        await api.patch(`/api/tasks/${id}`, data);
+        await api.patch(`/api/tasks/${id}`, {...data, tags});
         toast.success('Task updated successfully');
       } else {
-        await api.post('/api/tasks', data);
+        await api.post('/api/tasks', {...data, tags});
         toast.success('Task created successfully');
       }
       
@@ -120,7 +166,7 @@ const TaskForm: React.FC = () => {
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500"></div>
+        <div className="animate-rotate rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500"></div>
       </div>
     );
   }
@@ -131,10 +177,10 @@ const TaskForm: React.FC = () => {
       <style>{darkModeInputStyles}</style>
       
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{id ? 'Edit Task' : 'Create New Task'}</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white animate-slideInLeft">{id ? 'Edit Task' : 'Create New Task'}</h1>
         <button
           onClick={() => navigate('/dashboard')}
-          className="bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 px-4 py-2 rounded-md flex items-center transition-colors duration-200"
+          className="bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 px-4 py-2 rounded-md flex items-center transition-colors duration-200 animate-slideInRight"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -152,9 +198,9 @@ const TaskForm: React.FC = () => {
         </button>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-card dark:shadow-dark-card p-6 transition-colors duration-200">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-card dark:shadow-dark-card p-6 transition-colors duration-200 animate-popIn">
         <form onSubmit={handleSubmit(onSubmit)}>
-          <div className="mb-4">
+          <div className="mb-4 animate-fadeIn animate-delay-100">
             <label className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" htmlFor="title">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -190,7 +236,7 @@ const TaskForm: React.FC = () => {
             )}
           </div>
 
-          <div className="mb-4">
+          <div className="mb-4 animate-fadeIn animate-delay-200">
             <label className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" htmlFor="description">
               Description
             </label>
@@ -213,7 +259,7 @@ const TaskForm: React.FC = () => {
             )}
           </div>
 
-          <div className="mb-4">
+          <div className="mb-4 animate-fadeIn animate-delay-300">
             <label className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" htmlFor="dueDate">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -244,7 +290,7 @@ const TaskForm: React.FC = () => {
             )}
           </div>
 
-          <div className="mb-4">
+          <div className="mb-4 animate-fadeIn animate-delay-400">
             <label className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" htmlFor="priority">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -279,7 +325,7 @@ const TaskForm: React.FC = () => {
           </div>
 
           {id && (
-            <div className="mb-4">
+            <div className="mb-4 animate-fadeIn animate-delay-500">
               <label className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" htmlFor="status">
                 Status
               </label>
@@ -303,21 +349,79 @@ const TaskForm: React.FC = () => {
             </div>
           )}
 
-          <div className="flex justify-end">
+          <div className="mb-4 animate-fadeIn animate-delay-500">
+            <label className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" htmlFor="tags">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5 inline mr-2 text-primary-500"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path fillRule="evenodd" d="M17.707 9.293a1 1 0 010 1.414l-7 7a1 1 0 01-1.414 0l-7-7A.997.997 0 012 10V5a3 3 0 013-3h5c.256 0 .512.098.707.293l7 7zM5 6a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
+              </svg>
+              Tags
+            </label>
+            <div className="flex items-center">
+              <input
+                type="text"
+                value={tagInput}
+                onChange={(e) => setTagInput(e.target.value)}
+                onKeyDown={handleTagKeyDown}
+                placeholder="Add a tag and press Enter"
+                className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-l-md focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white dark:placeholder-gray-400 transition-colors duration-200"
+              />
+              <button
+                type="button"
+                onClick={handleAddTag}
+                className="bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-r-md transition-colors duration-200"
+              >
+                Add
+              </button>
+            </div>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {tags.map((tag, index) => (
+                <div 
+                  key={index} 
+                  className="bg-primary-100 dark:bg-primary-900 text-primary-800 dark:text-primary-200 px-2 py-1 rounded-full flex items-center animate-popIn"
+                >
+                  <span className="mr-1">{tag}</span>
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveTag(tag)}
+                    className="text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-200 focus:outline-none"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                    </svg>
+                  </button>
+                </div>
+              ))}
+            </div>
+            {tags.map((tag, index) => (
+              <input 
+                key={index}
+                type="hidden" 
+                {...register(`tags.${index}`)} 
+                value={tag} 
+              />
+            ))}
+          </div>
+
+          <div className="flex justify-end animate-fadeIn animate-delay-500">
             <button
               type="button"
               onClick={() => navigate('/dashboard')}
-              className="bg-gray-300 hover:bg-gray-400 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 font-bold py-2 px-4 rounded-md mr-2 transition-colors duration-200"
+              className="bg-gray-300 hover:bg-gray-400 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 font-bold py-2 px-4 rounded-md mr-2 transition-colors duration-200 hover:scale-105 transform"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="bg-primary-600 hover:bg-primary-700 text-white font-bold py-2 px-4 rounded-md flex items-center transition-colors duration-200 shadow-sm hover:shadow"
+              className="bg-primary-600 hover:bg-primary-700 text-white font-bold py-2 px-4 rounded-md flex items-center transition-colors duration-200 shadow-sm hover:shadow hover:scale-105 transform"
               disabled={isSubmitting}
             >
               {isSubmitting ? (
-                <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white"></div>
+                <div className="animate-rotate rounded-full h-5 w-5 border-t-2 border-b-2 border-white"></div>
               ) : (
                 <>
                   <svg

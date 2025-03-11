@@ -12,6 +12,7 @@ interface Task {
   dueDate: string;
   priority: 'low' | 'medium' | 'high';
   status: 'pending' | 'in-progress' | 'completed' | 'overdue';
+  tags?: string[];
 }
 
 const Dashboard: React.FC = () => {
@@ -20,10 +21,30 @@ const Dashboard: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [filter, setFilter] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState<string>('');
+  const [tagFilter, setTagFilter] = useState<string>('');
+  const [availableTags, setAvailableTags] = useState<string[]>([]);
 
   useEffect(() => {
     fetchTasks();
   }, []);
+
+  useEffect(() => {
+    // Extract all unique tags from tasks
+    if (tasks.length > 0) {
+      const allTags = tasks.reduce((acc: string[], task) => {
+        if (task.tags && task.tags.length > 0) {
+          return [...acc, ...task.tags];
+        }
+        return acc;
+      }, []);
+      
+      // Remove duplicates
+      const uniqueTags = [...new Set(allTags)];
+      setAvailableTags(uniqueTags);
+      console.log('Available tags:', uniqueTags);
+      console.log('Tasks with tags:', tasks.filter(task => task.tags && task.tags.length > 0));
+    }
+  }, [tasks]);
 
   const fetchTasks = async () => {
     try {
@@ -72,45 +93,91 @@ const Dashboard: React.FC = () => {
         task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (task.description && task.description.toLowerCase().includes(searchTerm.toLowerCase()))
       );
+    })
+    .filter((task) => {
+      if (!tagFilter) return true;
+      return task.tags && task.tags.includes(tagFilter);
     });
+
+  const clearFilters = () => {
+    setFilter('all');
+    setSearchTerm('');
+    setTagFilter('');
+  };
 
   return (
     <div className="transition-colors duration-200">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Welcome, {user?.name}</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white animate-slideInLeft">Welcome, {user?.name}</h1>
         <Link
           to="/tasks/new"
-          className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded transition-colors duration-200"
+          className="bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded transition-colors duration-200 hover:scale-105 transform animate-slideInRight"
         >
           Add Task
         </Link>
       </div>
 
-      <div className="mb-6">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-          <div className="mb-4 md:mb-0">
-            <label htmlFor="filter" className="mr-2 font-medium text-gray-700 dark:text-gray-300">
-              Filter:
-            </label>
-            <select
-              id="filter"
-              value={filter}
-              onChange={(e) => setFilter(e.target.value)}
-              className="border rounded p-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-            >
-              <option value="all">All</option>
-              <option value="pending">Pending</option>
-              <option value="in-progress">In Progress</option>
-              <option value="completed">Completed</option>
-            </select>
+      <div className="mb-6 animate-fadeIn animate-delay-100">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div className="flex flex-wrap items-center gap-4">
+            <div>
+              <label htmlFor="filter" className="mr-2 font-medium text-gray-700 dark:text-gray-300">
+                Status:
+              </label>
+              <select
+                id="filter"
+                value={filter}
+                onChange={(e) => setFilter(e.target.value)}
+                className="border rounded p-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white hover:border-primary-500 dark:hover:border-primary-400 transition-colors duration-200"
+              >
+                <option value="all">All</option>
+                <option value="pending">Pending</option>
+                <option value="in-progress">In Progress</option>
+                <option value="completed">Completed</option>
+              </select>
+            </div>
+            
+            {availableTags.length > 0 && (
+              <div>
+                <label htmlFor="tagFilter" className="mr-2 font-medium text-gray-700 dark:text-gray-300">
+                  Tag:
+                </label>
+                <select
+                  id="tagFilter"
+                  value={tagFilter}
+                  onChange={(e) => setTagFilter(e.target.value)}
+                  className="border rounded p-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white hover:border-primary-500 dark:hover:border-primary-400 transition-colors duration-200"
+                >
+                  <option value="">All Tags</option>
+                  {availableTags.map((tag) => (
+                    <option key={tag} value={tag}>
+                      {tag}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+            
+            {(filter !== 'all' || searchTerm || tagFilter) && (
+              <button
+                onClick={clearFilters}
+                className="text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-200 text-sm flex items-center animate-fadeIn"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+                Clear Filters
+              </button>
+            )}
           </div>
+          
           <div className="relative">
             <input
               type="text"
               placeholder="Search tasks..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="border rounded p-2 pl-8 w-full md:w-auto dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
+              className="border rounded p-2 pl-8 w-full md:w-auto dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
             />
             <svg
               className="absolute left-2 top-3 h-4 w-4 text-gray-400 dark:text-gray-500"
@@ -132,27 +199,28 @@ const Dashboard: React.FC = () => {
 
       {isLoading ? (
         <div className="flex justify-center my-8">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+          <div className="animate-rotate rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500"></div>
         </div>
       ) : filteredTasks.length === 0 ? (
-        <div className="text-center py-8 bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 transition-colors duration-200">
+        <div className="text-center py-8 bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 transition-colors duration-200 animate-popIn">
           <p className="text-gray-500 dark:text-gray-400 mb-4">No tasks found</p>
           <Link
             to="/tasks/new"
-            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded inline-block transition-colors duration-200"
+            className="bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded inline-block transition-colors duration-200 hover:scale-105 transform"
           >
             Create your first task
           </Link>
         </div>
       ) : (
         <div className="space-y-4">
-          {filteredTasks.map((task) => (
-            <TaskItem
-              key={task._id}
-              task={task}
-              onDelete={handleDeleteTask}
-              onStatusChange={handleStatusChange}
-            />
+          {filteredTasks.map((task, index) => (
+            <div key={task._id} className={`animate-fadeIn animate-delay-${Math.min(index * 100, 500)}`}>
+              <TaskItem
+                task={task}
+                onDelete={handleDeleteTask}
+                onStatusChange={handleStatusChange}
+              />
+            </div>
           ))}
         </div>
       )}
