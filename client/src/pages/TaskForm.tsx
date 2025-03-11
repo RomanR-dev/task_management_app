@@ -4,6 +4,42 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
 import api from '../api/api.ts';
 
+// Add global styles for dark mode inputs
+const darkModeInputStyles = `
+  .dark input, .dark select, .dark textarea {
+    color: white !important;
+    background-color: #374151 !important;
+    -webkit-text-fill-color: white !important;
+  }
+  .dark input::placeholder, .dark textarea::placeholder {
+    color: #9CA3AF !important;
+  }
+  .dark input[type="date"] {
+    color-scheme: dark;
+  }
+  .dark input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+  }
+  .dark select option {
+    background-color: #374151 !important;
+    color: white !important;
+  }
+  /* Force WebKit browsers to show text in dark mode */
+  .dark input:-webkit-autofill,
+  .dark input:-webkit-autofill:hover,
+  .dark input:-webkit-autofill:focus,
+  .dark textarea:-webkit-autofill,
+  .dark textarea:-webkit-autofill:hover,
+  .dark textarea:-webkit-autofill:focus,
+  .dark select:-webkit-autofill,
+  .dark select:-webkit-autofill:hover,
+  .dark select:-webkit-autofill:focus {
+    -webkit-text-fill-color: white !important;
+    -webkit-box-shadow: 0 0 0px 1000px #374151 inset !important;
+    transition: background-color 5000s ease-in-out 0s;
+  }
+`;
+
 interface TaskFormData {
   title: string;
   description: string;
@@ -84,18 +120,21 @@ const TaskForm: React.FC = () => {
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500"></div>
       </div>
     );
   }
 
   return (
-    <div>
+    <div className="animate-slideInUp">
+      {/* Add style tag for dark mode inputs */}
+      <style>{darkModeInputStyles}</style>
+      
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">{id ? 'Edit Task' : 'Create New Task'}</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{id ? 'Edit Task' : 'Create New Task'}</h1>
         <button
           onClick={() => navigate('/dashboard')}
-          className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-md flex items-center"
+          className="bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 px-4 py-2 rounded-md flex items-center transition-colors duration-200"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -113,13 +152,13 @@ const TaskForm: React.FC = () => {
         </button>
       </div>
 
-      <div className="bg-white rounded-lg shadow-md p-6">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-card dark:shadow-dark-card p-6 transition-colors duration-200">
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="title">
+            <label className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" htmlFor="title">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5 inline mr-2"
+                className="h-5 w-5 inline mr-2 text-primary-500"
                 viewBox="0 0 20 20"
                 fill="currentColor"
               >
@@ -135,8 +174,8 @@ const TaskForm: React.FC = () => {
               id="title"
               type="text"
               className={`w-full px-3 py-2 border ${
-                errors.title ? 'border-red-500' : 'border-gray-300'
-              } rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                errors.title ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
+              } rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white dark:placeholder-gray-400 transition-colors duration-200`}
               placeholder="Enter task title"
               {...register('title', {
                 required: 'Title is required',
@@ -152,15 +191,15 @@ const TaskForm: React.FC = () => {
           </div>
 
           <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="description">
+            <label className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" htmlFor="description">
               Description
             </label>
             <textarea
               id="description"
               rows={4}
               className={`w-full px-3 py-2 border ${
-                errors.description ? 'border-red-500' : 'border-gray-300'
-              } rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                errors.description ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
+              } rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white dark:placeholder-gray-400 transition-colors duration-200`}
               placeholder="Enter task description (optional)"
               {...register('description', {
                 maxLength: {
@@ -175,10 +214,10 @@ const TaskForm: React.FC = () => {
           </div>
 
           <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="dueDate">
+            <label className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" htmlFor="dueDate">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5 inline mr-2"
+                className="h-5 w-5 inline mr-2 text-primary-500"
                 viewBox="0 0 20 20"
                 fill="currentColor"
               >
@@ -194,8 +233,8 @@ const TaskForm: React.FC = () => {
               id="dueDate"
               type="date"
               className={`w-full px-3 py-2 border ${
-                errors.dueDate ? 'border-red-500' : 'border-gray-300'
-              } rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                errors.dueDate ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
+              } rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors duration-200`}
               {...register('dueDate', {
                 required: 'Due date is required',
               })}
@@ -206,10 +245,10 @@ const TaskForm: React.FC = () => {
           </div>
 
           <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="priority">
+            <label className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" htmlFor="priority">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5 inline mr-2"
+                className="h-5 w-5 inline mr-2 text-primary-500"
                 viewBox="0 0 20 20"
                 fill="currentColor"
               >
@@ -224,15 +263,15 @@ const TaskForm: React.FC = () => {
             <select
               id="priority"
               className={`w-full px-3 py-2 border ${
-                errors.priority ? 'border-red-500' : 'border-gray-300'
-              } rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                errors.priority ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
+              } rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors duration-200`}
               {...register('priority', {
                 required: 'Priority is required',
               })}
             >
-              <option value="low">Low</option>
-              <option value="medium">Medium</option>
-              <option value="high">High</option>
+              <option value="low" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-white">Low</option>
+              <option value="medium" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-white">Medium</option>
+              <option value="high" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-white">High</option>
             </select>
             {errors.priority && (
               <p className="text-red-500 text-xs mt-1">{errors.priority.message}</p>
@@ -241,22 +280,22 @@ const TaskForm: React.FC = () => {
 
           {id && (
             <div className="mb-4">
-              <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="status">
+              <label className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" htmlFor="status">
                 Status
               </label>
               <select
                 id="status"
                 className={`w-full px-3 py-2 border ${
-                  errors.status ? 'border-red-500' : 'border-gray-300'
-                } rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                  errors.status ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
+                } rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors duration-200`}
                 {...register('status', {
                   required: 'Status is required',
                 })}
               >
-                <option value="pending">Pending</option>
-                <option value="in-progress">In Progress</option>
-                <option value="completed">Completed</option>
-                <option value="overdue">Overdue</option>
+                <option value="pending" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-white">Pending</option>
+                <option value="in-progress" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-white">In Progress</option>
+                <option value="completed" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-white">Completed</option>
+                <option value="overdue" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-white">Overdue</option>
               </select>
               {errors.status && (
                 <p className="text-red-500 text-xs mt-1">{errors.status.message}</p>
@@ -268,13 +307,13 @@ const TaskForm: React.FC = () => {
             <button
               type="button"
               onClick={() => navigate('/dashboard')}
-              className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-md mr-2"
+              className="bg-gray-300 hover:bg-gray-400 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 font-bold py-2 px-4 rounded-md mr-2 transition-colors duration-200"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md flex items-center"
+              className="bg-primary-600 hover:bg-primary-700 text-white font-bold py-2 px-4 rounded-md flex items-center transition-colors duration-200 shadow-sm hover:shadow"
               disabled={isSubmitting}
             >
               {isSubmitting ? (

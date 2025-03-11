@@ -18,6 +18,7 @@ interface TaskItemProps {
 const TaskItem: React.FC<TaskItemProps> = ({ task, onDelete, onStatusChange }) => {
   const { _id, title, description, dueDate, priority, status } = task;
   const [showActions, setShowActions] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
@@ -29,6 +30,31 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onDelete, onStatusChange }) =
         return 'border-blue-500';
       default:
         return 'border-gray-300';
+    }
+  };
+
+  const getPriorityIcon = (priority: string) => {
+    switch (priority) {
+      case 'high':
+        return (
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 inline mr-1 text-red-600 dark:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+        );
+      case 'medium':
+        return (
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 inline mr-1 text-yellow-600 dark:text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        );
+      case 'low':
+        return (
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 inline mr-1 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+          </svg>
+        );
+      default:
+        return null;
     }
   };
 
@@ -65,9 +91,11 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onDelete, onStatusChange }) =
 
   return (
     <div
-      className={`bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 mb-4 border-l-4 ${getPriorityColor(
+      className={`bg-white dark:bg-gray-800 rounded-lg ${isHovered ? 'shadow-card-hover dark:shadow-dark-card-hover' : 'shadow-card dark:shadow-dark-card'} p-4 mb-4 border-l-4 ${getPriorityColor(
         priority
-      )} ${status === 'completed' ? 'opacity-70' : ''} transition-colors duration-200`}
+      )} ${status === 'completed' ? 'opacity-70' : ''} transition-all duration-300 transform ${isHovered ? 'scale-[1.01]' : 'scale-100'}`}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
       <div className="flex justify-between">
         <div className="flex items-start flex-1">
@@ -77,8 +105,8 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onDelete, onStatusChange }) =
               className={`w-6 h-6 rounded-full border ${
                 status === 'completed'
                   ? 'bg-green-500 border-green-500 text-white'
-                  : 'border-gray-300 dark:border-gray-600'
-              } flex items-center justify-center focus:outline-none`}
+                  : 'border-gray-300 dark:border-gray-600 hover:border-green-500 dark:hover:border-green-400'
+              } flex items-center justify-center focus:outline-none transition-colors duration-200`}
               aria-label={status === 'completed' ? 'Mark as incomplete' : 'Mark as complete'}
             >
               {status === 'completed' && (
@@ -108,7 +136,7 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onDelete, onStatusChange }) =
             {description && <p className="text-gray-600 dark:text-gray-400 mb-2">{description}</p>}
             <div className="flex flex-wrap items-center mt-2 text-sm">
               <span
-                className={`px-2 py-1 rounded-full mr-2 ${
+                className={`px-2 py-1 rounded-full mr-2 flex items-center ${
                   isOverdue() ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300' : 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300'
                 }`}
               >
@@ -128,7 +156,7 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onDelete, onStatusChange }) =
                 </svg>
                 {formatDueDate()}
               </span>
-              <span className={`px-2 py-1 rounded-full mr-2 ${getStatusColor(status)}`}>
+              <span className={`px-2 py-1 rounded-full mr-2 flex items-center ${getStatusColor(status)}`}>
                 {status === 'completed' && (
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -148,7 +176,7 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onDelete, onStatusChange }) =
                 {status === 'overdue' && (
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    className="h-4 w-4 inline mr-1"
+                    className="h-4 w-4 inline mr-1 animate-pulse"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -164,7 +192,7 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onDelete, onStatusChange }) =
                 {status === 'in-progress' && (
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    className="h-4 w-4 inline mr-1"
+                    className="h-4 w-4 inline mr-1 animate-pulse-slow"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -196,7 +224,7 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onDelete, onStatusChange }) =
                 {status.charAt(0).toUpperCase() + status.slice(1).replace('-', ' ')}
               </span>
               <span
-                className={`px-2 py-1 rounded-full ${
+                className={`px-2 py-1 rounded-full flex items-center ${
                   priority === 'high'
                     ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
                     : priority === 'medium'
@@ -204,6 +232,7 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onDelete, onStatusChange }) =
                     : 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300'
                 }`}
               >
+                {getPriorityIcon(priority)}
                 {priority.charAt(0).toUpperCase() + priority.slice(1)}
               </span>
             </div>
@@ -213,7 +242,7 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onDelete, onStatusChange }) =
         <div className="relative">
           <button
             onClick={toggleActions}
-            className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 focus:outline-none"
+            className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 focus:outline-none transition-colors duration-200"
             aria-label="Task actions"
           >
             <svg
@@ -227,10 +256,10 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onDelete, onStatusChange }) =
           </button>
 
           {showActions && (
-            <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg z-10 border border-gray-200 dark:border-gray-700">
+            <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg z-10 border border-gray-200 dark:border-gray-700 overflow-hidden">
               <Link
                 to={`/tasks/edit/${_id}`}
-                className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center"
+                className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center transition-colors duration-200"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -250,7 +279,7 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onDelete, onStatusChange }) =
               </Link>
               <button
                 onClick={() => onDelete(_id)}
-                className="block w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center"
+                className="block w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center transition-colors duration-200"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
