@@ -75,12 +75,12 @@ const Dashboard: React.FC = () => {
     });
 
   return (
-    <div>
+    <div className="transition-colors duration-200">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Welcome, {user?.name}</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Welcome, {user?.name}</h1>
         <Link
           to="/tasks/new"
-          className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
+          className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded transition-colors duration-200"
         >
           Add Task
         </Link>
@@ -89,14 +89,14 @@ const Dashboard: React.FC = () => {
       <div className="mb-6">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between">
           <div className="mb-4 md:mb-0">
-            <label htmlFor="filter" className="mr-2 font-medium">
+            <label htmlFor="filter" className="mr-2 font-medium text-gray-700 dark:text-gray-300">
               Filter:
             </label>
             <select
               id="filter"
               value={filter}
               onChange={(e) => setFilter(e.target.value)}
-              className="border rounded p-2"
+              className="border rounded p-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
             >
               <option value="all">All</option>
               <option value="pending">Pending</option>
@@ -110,10 +110,10 @@ const Dashboard: React.FC = () => {
               placeholder="Search tasks..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="border rounded p-2 pl-8 w-full md:w-auto"
+              className="border rounded p-2 pl-8 w-full md:w-auto dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
             />
             <svg
-              className="absolute left-2 top-3 h-4 w-4 text-gray-400"
+              className="absolute left-2 top-3 h-4 w-4 text-gray-400 dark:text-gray-500"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -135,11 +135,11 @@ const Dashboard: React.FC = () => {
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
         </div>
       ) : filteredTasks.length === 0 ? (
-        <div className="text-center py-8">
-          <p className="text-gray-500 mb-4">No tasks found</p>
+        <div className="text-center py-8 bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 transition-colors duration-200">
+          <p className="text-gray-500 dark:text-gray-400 mb-4">No tasks found</p>
           <Link
             to="/tasks/new"
-            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded inline-block"
+            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded inline-block transition-colors duration-200"
           >
             Create your first task
           </Link>

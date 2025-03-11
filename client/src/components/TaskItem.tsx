@@ -35,13 +35,13 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onDelete, onStatusChange }) =
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'completed':
-        return 'bg-green-100 text-green-800';
+        return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300';
       case 'in-progress':
-        return 'bg-blue-100 text-blue-800';
+        return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300';
       case 'overdue':
-        return 'bg-red-100 text-red-800';
+        return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
     }
   };
 
@@ -65,9 +65,9 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onDelete, onStatusChange }) =
 
   return (
     <div
-      className={`bg-white rounded-lg shadow-md p-4 mb-4 border-l-4 ${getPriorityColor(
+      className={`bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 mb-4 border-l-4 ${getPriorityColor(
         priority
-      )} ${status === 'completed' ? 'opacity-70' : ''}`}
+      )} ${status === 'completed' ? 'opacity-70' : ''} transition-colors duration-200`}
     >
       <div className="flex justify-between">
         <div className="flex items-start flex-1">
@@ -77,7 +77,7 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onDelete, onStatusChange }) =
               className={`w-6 h-6 rounded-full border ${
                 status === 'completed'
                   ? 'bg-green-500 border-green-500 text-white'
-                  : 'border-gray-300'
+                  : 'border-gray-300 dark:border-gray-600'
               } flex items-center justify-center focus:outline-none`}
               aria-label={status === 'completed' ? 'Mark as incomplete' : 'Mark as complete'}
             >
@@ -100,16 +100,16 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onDelete, onStatusChange }) =
           <div className="flex-1">
             <h3
               className={`text-lg font-semibold mb-1 ${
-                status === 'completed' ? 'line-through text-gray-500' : ''
+                status === 'completed' ? 'line-through text-gray-500 dark:text-gray-400' : 'text-gray-800 dark:text-white'
               }`}
             >
               {title}
             </h3>
-            {description && <p className="text-gray-600 mb-2">{description}</p>}
+            {description && <p className="text-gray-600 dark:text-gray-400 mb-2">{description}</p>}
             <div className="flex flex-wrap items-center mt-2 text-sm">
               <span
                 className={`px-2 py-1 rounded-full mr-2 ${
-                  isOverdue() ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800'
+                  isOverdue() ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300' : 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300'
                 }`}
               >
                 <svg
@@ -198,10 +198,10 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onDelete, onStatusChange }) =
               <span
                 className={`px-2 py-1 rounded-full ${
                   priority === 'high'
-                    ? 'bg-red-100 text-red-800'
+                    ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
                     : priority === 'medium'
-                    ? 'bg-yellow-100 text-yellow-800'
-                    : 'bg-blue-100 text-blue-800'
+                    ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300'
+                    : 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300'
                 }`}
               >
                 {priority.charAt(0).toUpperCase() + priority.slice(1)}
@@ -213,7 +213,7 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onDelete, onStatusChange }) =
         <div className="relative">
           <button
             onClick={toggleActions}
-            className="text-gray-500 hover:text-gray-700 focus:outline-none"
+            className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 focus:outline-none"
             aria-label="Task actions"
           >
             <svg
@@ -227,10 +227,10 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onDelete, onStatusChange }) =
           </button>
 
           {showActions && (
-            <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10 border border-gray-200">
+            <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg z-10 border border-gray-200 dark:border-gray-700">
               <Link
                 to={`/tasks/edit/${_id}`}
-                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
+                className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -250,7 +250,7 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onDelete, onStatusChange }) =
               </Link>
               <button
                 onClick={() => onDelete(_id)}
-                className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 flex items-center"
+                className="block w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"

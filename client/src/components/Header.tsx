@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.tsx';
+import DarkModeToggle from './DarkModeToggle.tsx';
 
 const Header: React.FC = () => {
   const { isAuthenticated, user, logout } = useAuth();
@@ -17,10 +18,10 @@ const Header: React.FC = () => {
   };
 
   return (
-    <header className="bg-white shadow-md">
+    <header className="bg-white shadow-md dark:bg-gray-800 transition-colors duration-200">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center py-4">
-          <Link to="/" className="text-xl font-bold text-blue-600 flex items-center">
+          <Link to="/" className="text-xl font-bold text-blue-600 dark:text-blue-400 flex items-center">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-6 w-6 mr-2"
@@ -38,11 +39,16 @@ const Header: React.FC = () => {
             Task Manager
           </Link>
 
+          {/* Dark Mode Toggle */}
+          <div className="hidden md:block">
+            <DarkModeToggle />
+          </div>
+
           {/* Mobile menu button */}
           <div className="md:hidden">
             <button
               onClick={toggleMenu}
-              className="text-gray-500 hover:text-gray-600 focus:outline-none"
+              className="text-gray-500 hover:text-gray-600 dark:text-gray-300 dark:hover:text-gray-100 focus:outline-none"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -76,13 +82,13 @@ const Header: React.FC = () => {
               <>
                 <Link
                   to="/dashboard"
-                  className="text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium"
+                  className="text-gray-600 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium"
                 >
                   Dashboard
                 </Link>
                 <Link
                   to="/calendar"
-                  className="text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium"
+                  className="text-gray-600 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium"
                 >
                   Calendar
                 </Link>
@@ -92,12 +98,12 @@ const Header: React.FC = () => {
                 >
                   Add Task
                 </Link>
-                <span className="text-gray-600 px-3 py-2 text-sm font-medium">
+                <span className="text-gray-600 dark:text-gray-300 px-3 py-2 text-sm font-medium">
                   {user?.name}
                 </span>
                 <button
                   onClick={handleLogout}
-                  className="text-red-600 hover:text-red-700 px-3 py-2 rounded-md text-sm font-medium"
+                  className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 px-3 py-2 rounded-md text-sm font-medium"
                 >
                   Logout
                 </button>
@@ -106,7 +112,7 @@ const Header: React.FC = () => {
               <>
                 <Link
                   to="/login"
-                  className="text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium"
+                  className="text-gray-600 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium"
                 >
                   Login
                 </Link>
@@ -123,20 +129,23 @@ const Header: React.FC = () => {
 
         {/* Mobile Navigation */}
         {isMenuOpen && (
-          <div className="md:hidden py-3 border-t border-gray-200">
+          <div className="md:hidden py-3 border-t border-gray-200 dark:border-gray-700">
+            <div className="flex justify-center mb-3">
+              <DarkModeToggle />
+            </div>
             <nav className="flex flex-col space-y-2">
               {isAuthenticated ? (
                 <>
                   <Link
                     to="/dashboard"
-                    className="text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium"
+                    className="text-gray-600 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium"
                     onClick={toggleMenu}
                   >
                     Dashboard
                   </Link>
                   <Link
                     to="/calendar"
-                    className="text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium"
+                    className="text-gray-600 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium"
                     onClick={toggleMenu}
                   >
                     Calendar
@@ -148,7 +157,7 @@ const Header: React.FC = () => {
                   >
                     Add Task
                   </Link>
-                  <span className="text-gray-600 px-3 py-2 text-sm font-medium">
+                  <span className="text-gray-600 dark:text-gray-300 px-3 py-2 text-sm font-medium">
                     {user?.name}
                   </span>
                   <button
@@ -156,7 +165,7 @@ const Header: React.FC = () => {
                       handleLogout();
                       toggleMenu();
                     }}
-                    className="text-red-600 hover:text-red-700 px-3 py-2 rounded-md text-sm font-medium text-left"
+                    className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 px-3 py-2 rounded-md text-sm font-medium text-left"
                   >
                     Logout
                   </button>
@@ -165,7 +174,7 @@ const Header: React.FC = () => {
                 <>
                   <Link
                     to="/login"
-                    className="text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium"
+                    className="text-gray-600 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium"
                     onClick={toggleMenu}
                   >
                     Login
