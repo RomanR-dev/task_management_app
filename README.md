@@ -34,7 +34,6 @@ A powerful full-stack task management application with user authentication, task
   <img src="https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white" />
   <img src="https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=node.js&logoColor=white" />
   <img src="https://img.shields.io/badge/MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white" />
-  <img src="https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white" />
   <img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" />
 </div>
 
@@ -49,7 +48,6 @@ A powerful full-stack task management application with user authentication, task
   - WebSocket for real-time updates
 - **Database**: 
   - MongoDB for data storage
-  - Redis for caching
 - **Authentication**: 
   - JWT (JSON Web Tokens)
   - OAuth 2.0 support
@@ -60,8 +58,8 @@ The application can be easily deployed using Docker Compose. Follow these steps:
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/task-manager.git
-   cd task-manager
+   git clone https://github.com/RomanR-dev/task_management_app.git
+   cd task_management_app
    ```
 
 2. Create environment files:
@@ -89,7 +87,5 @@ The Docker setup includes:
 - Frontend React container
 - Node.js backend container 
 - MongoDB container
-- Redis container
-- Nginx reverse proxy
 
 All services are configured to work together out of the box with proper networking and persistence.
