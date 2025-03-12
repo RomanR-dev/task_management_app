@@ -29,7 +29,14 @@ A powerful full-stack task management application with user authentication, task
 
 ## 🛠️ Tech Stack
 
-![Tech Stack](./docs/assets/tech-stack.png)
+<div align="center">
+  <img src="https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=react&logoColor=black" />
+  <img src="https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white" />
+  <img src="https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=node.js&logoColor=white" />
+  <img src="https://img.shields.io/badge/MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white" />
+  <img src="https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white" />
+  <img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" />
+</div>
 
 - **Frontend**: 
   - React with TypeScript
@@ -49,4 +56,40 @@ A powerful full-stack task management application with user authentication, task
 
 ## 🐳 Running with Docker
 
-The easiest way to run the application is using Docker Compose:
+The application can be easily deployed using Docker Compose. Follow these steps:
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/task-manager.git
+   cd task-manager
+   ```
+
+2. Create environment files:
+   ```bash
+   cp .env.example .env
+   cp client/.env.example client/.env
+   ```
+
+3. Build and start the containers:
+   ```bash
+   docker-compose up -d --build
+   ```
+
+4. The application will be available at:
+   - Frontend: http://localhost:3000
+   - Backend API: http://localhost:5000
+   - MongoDB Express: http://localhost:8081
+
+5. To stop the containers:
+   ```bash
+   docker-compose down
+   ```
+
+The Docker setup includes:
+- Frontend React container
+- Node.js backend container 
+- MongoDB container
+- Redis container
+- Nginx reverse proxy
+
+All services are configured to work together out of the box with proper networking and persistence.
