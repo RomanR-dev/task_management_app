@@ -62,23 +62,17 @@ The application can be easily deployed using Docker Compose. Follow these steps:
    cd task_management_app
    ```
 
-2. Create environment files:
-   ```bash
-   cp .env.example .env
-   cp client/.env.example client/.env
-   ```
-
-3. Build and start the containers:
+2. Build and start the containers:
    ```bash
    docker-compose up -d --build
    ```
 
-4. The application will be available at:
+3. The application will be available at:
    - Frontend: http://localhost:3000
    - Backend API: http://localhost:5000
    - MongoDB Express: http://localhost:8081
 
-5. To stop the containers:
+4. To stop the containers:
    ```bash
    docker-compose down
    ```
