@@ -11,6 +11,7 @@ import TaskCalendar from './pages/TaskCalendar.tsx';
 import TaskForm from './pages/TaskForm.tsx';
 import NotFound from './pages/NotFound.tsx';
 import TaskVisualization from './pages/TaskVisualization.tsx';
+import KanbanBoard from './pages/KanbanBoard.tsx';
 
 // Components
 import Header from './components/Header.tsx';
@@ -81,6 +82,14 @@ const App: React.FC = () => {
                 element={
                   <PrivateRoute>
                     <TaskVisualization />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/kanban"
+                element={
+                  <PrivateRoute>
+                    <KanbanBoard />
                   </PrivateRoute>
                 }
               />

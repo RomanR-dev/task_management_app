@@ -148,6 +148,35 @@ const Header: React.FC = () => {
                   )}
                 </Link>
                 <Link
+                  to="/kanban"
+                  className={`relative px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
+                    isActive('/kanban')
+                      ? 'text-primary-600 dark:text-primary-400'
+                      : 'text-gray-600 hover:text-primary-600 dark:text-gray-300 dark:hover:text-primary-400'
+                  }`}
+                >
+                  <span className="flex items-center">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-5 w-5 mr-1"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
+                      />
+                    </svg>
+                    Kanban
+                  </span>
+                  {isActive('/kanban') && (
+                    <span className="absolute bottom-0 left-0 w-full h-0.5 bg-primary-500 dark:bg-primary-400"></span>
+                  )}
+                </Link>
+                <Link
                   to="/tasks/new"
                   className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-md text-sm font-medium flex items-center transition-colors duration-200 shadow-sm hover:shadow"
                 >
@@ -286,6 +315,31 @@ const Header: React.FC = () => {
                       />
                     </svg>
                     Calendar
+                  </Link>
+                  <Link
+                    to="/kanban"
+                    className={`px-3 py-2 rounded-md text-sm font-medium flex items-center ${
+                      isActive('/kanban')
+                        ? 'text-primary-600 dark:text-primary-400 bg-gray-100 dark:bg-gray-700'
+                        : 'text-gray-600 hover:text-primary-600 dark:text-gray-300 dark:hover:text-primary-400'
+                    } transition-colors duration-200`}
+                    onClick={toggleMenu}
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-5 w-5 mr-2"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
+                      />
+                    </svg>
+                    Kanban
                   </Link>
                   <Link
                     to="/tasks/new"
