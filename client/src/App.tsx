@@ -10,6 +10,7 @@ import Dashboard from './pages/Dashboard.tsx';
 import TaskCalendar from './pages/TaskCalendar.tsx';
 import TaskForm from './pages/TaskForm.tsx';
 import NotFound from './pages/NotFound.tsx';
+import TaskVisualization from './pages/TaskVisualization.tsx';
 
 // Components
 import Header from './components/Header.tsx';
@@ -74,6 +75,14 @@ const App: React.FC = () => {
                     <TaskForm />
                   </PrivateRoute>
                 } 
+              />
+              <Route
+                path="/tasks/visualization"
+                element={
+                  <PrivateRoute>
+                    <TaskVisualization />
+                  </PrivateRoute>
+                }
               />
               <Route path="*" element={<NotFound />} />
             </Routes>

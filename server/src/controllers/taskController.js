@@ -3,21 +3,45 @@ const Task = require('../models/taskModel');
 // Create a new task
 exports.createTask = async (req, res) => {
   try {
-    // Add user to request body
-    req.body.user = req.user._id;
+    const { title, description, dueDate, priority, status, tags, dependencies } = req.body;
 
-    const newTask = await Task.create(req.body);
+    // Validate dependencies if provided
+    if (dependencies && dependencies.length > 0) {
+      // Check if all dependencies exist
+      const dependencyCount = await Task.countDocuments({
+        _id: { $in: dependencies },
+        user: req.user.id
+      });
+
+      if (dependencyCount !== dependencies.length) {
+        return res.status(400).json({
+          status: 'fail',
+          message: 'One or more dependencies do not exist or do not belong to you'
+        });
+      }
+    }
+
+    const newTask = await Task.create({
+      title,
+      description,
+      dueDate,
+      priority,
+      status,
+      tags,
+      dependencies,
+      user: req.user.id
+    });
 
     res.status(201).json({
       status: 'success',
       data: {
-        task: newTask,
-      },
+        task: newTask
+      }
     });
   } catch (error) {
     res.status(400).json({
       status: 'fail',
-      message: error.message,
+      message: error.message
     });
   }
 };
@@ -101,35 +125,57 @@ exports.getTask = async (req, res) => {
 // Update a task
 exports.updateTask = async (req, res) => {
   try {
-    const task = await Task.findOneAndUpdate(
-      {
-        _id: req.params.id,
-        user: req.user._id,
-      },
-      req.body,
-      {
-        new: true,
-        runValidators: true,
+    const { dependencies } = req.body;
+
+    // Validate dependencies if provided
+    if (dependencies && dependencies.length > 0) {
+      // Check if all dependencies exist
+      const dependencyCount = await Task.countDocuments({
+        _id: { $in: dependencies },
+        user: req.user.id
+      });
+
+      if (dependencyCount !== dependencies.length) {
+        return res.status(400).json({
+          status: 'fail',
+          message: 'One or more dependencies do not exist or do not belong to you'
+        });
       }
+
+      // Check for circular dependencies
+      const taskId = req.params.id;
+      const circularCheck = await checkCircularDependencies(taskId, dependencies);
+      if (circularCheck) {
+        return res.status(400).json({
+          status: 'fail',
+          message: 'Circular dependency detected. A task cannot depend on itself directly or indirectly.'
+        });
+      }
+    }
+
+    const updatedTask = await Task.findOneAndUpdate(
+      { _id: req.params.id, user: req.user.id },
+      req.body,
+      { new: true, runValidators: true }
     );
 
-    if (!task) {
+    if (!updatedTask) {
       return res.status(404).json({
         status: 'fail',
-        message: 'No task found with that ID',
+        message: 'No task found with that ID'
       });
     }
 
     res.status(200).json({
       status: 'success',
       data: {
-        task,
-      },
+        task: updatedTask
+      }
     });
   } catch (error) {
     res.status(400).json({
       status: 'fail',
-      message: error.message,
+      message: error.message
     });
   }
 };
@@ -183,4 +229,41 @@ exports.getOverdueTasks = async (req, res) => {
       message: error.message,
     });
   }
+};
+
+// Helper function to check for circular dependencies
+const checkCircularDependencies = async (taskId, dependencies) => {
+  // If the task depends on itself directly
+  if (dependencies.includes(taskId)) {
+    return true;
+  }
+
+  // Check for indirect circular dependencies
+  const queue = [...dependencies];
+  const visited = new Set();
+
+  while (queue.length > 0) {
+    const currentDep = queue.shift();
+    
+    if (visited.has(currentDep)) {
+      continue;
+    }
+    
+    visited.add(currentDep);
+    
+    const task = await Task.findById(currentDep);
+    if (!task) continue;
+    
+    if (task.dependencies && task.dependencies.length > 0) {
+      // If any of the dependencies' dependencies include the original task
+      if (task.dependencies.some(dep => dep.toString() === taskId)) {
+        return true;
+      }
+      
+      // Add the dependencies to the queue for further checking
+      queue.push(...task.dependencies.map(dep => dep.toString()));
+    }
+  }
+  
+  return false;
 }; 

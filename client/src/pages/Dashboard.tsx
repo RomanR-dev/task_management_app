@@ -109,12 +109,44 @@ const Dashboard: React.FC = () => {
     <div className="transition-colors duration-200">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white animate-slideInLeft">Welcome, {user?.name}</h1>
-        <Link
-          to="/tasks/new"
-          className="bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded transition-colors duration-200 hover:scale-105 transform animate-slideInRight"
-        >
-          Add Task
-        </Link>
+        <div className="flex space-x-3 animate-slideInRight">
+          <Link
+            to="/tasks/visualization"
+            className="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded transition-colors duration-200 hover:scale-105 transform flex items-center"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5 mr-1"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fillRule="evenodd"
+                d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11.707 4.707a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293a1 1 0 00-1.414 0l-2 2a1 1 0 101.414 1.414L8 10.414l1.293 1.293a1 1 0 001.414 0l4-4z"
+                clipRule="evenodd"
+              />
+            </svg>
+            Visualize
+          </Link>
+          <Link
+            to="/tasks/new"
+            className="bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded transition-colors duration-200 hover:scale-105 transform flex items-center"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5 mr-1"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fillRule="evenodd"
+                d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
+                clipRule="evenodd"
+              />
+            </svg>
+            Add Task
+          </Link>
+        </div>
       </div>
 
       <div className="mb-6 animate-fadeIn animate-delay-100">

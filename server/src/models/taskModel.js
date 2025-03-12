@@ -38,6 +38,13 @@ const taskSchema = new mongoose.Schema(
         message: 'Tags must be unique'
       }
     },
+    dependencies: {
+      type: [{
+        type: mongoose.Schema.ObjectId,
+        ref: 'Task'
+      }],
+      default: []
+    },
     user: {
       type: mongoose.Schema.ObjectId,
       ref: 'User',
@@ -54,6 +61,7 @@ const taskSchema = new mongoose.Schema(
 // Create index for faster queries
 taskSchema.index({ user: 1, dueDate: 1 });
 taskSchema.index({ tags: 1 }); // Add index for tags for faster filtering
+taskSchema.index({ dependencies: 1 }); // Add index for dependencies
 
 // Virtual property to check if task is overdue
 taskSchema.virtual('isOverdue').get(function () {
@@ -84,6 +92,15 @@ taskSchema.pre(/^find/, async function (next) {
     }
   );
   
+  next();
+});
+
+// Populate dependencies when finding tasks
+taskSchema.pre(/^find/, function(next) {
+  this.populate({
+    path: 'dependencies',
+    select: 'title status'
+  });
   next();
 });
 

@@ -47,6 +47,7 @@ interface TaskFormData {
   priority: 'low' | 'medium' | 'high';
   status: 'pending' | 'in-progress' | 'completed' | 'overdue';
   tags: string[];
+  dependencies: string[];
 }
 
 const TaskForm: React.FC = () => {
@@ -56,6 +57,8 @@ const TaskForm: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [tagInput, setTagInput] = useState<string>('');
   const [tags, setTags] = useState<string[]>([]);
+  const [availableTasks, setAvailableTasks] = useState<{ _id: string; title: string }[]>([]);
+  const [dependencies, setDependencies] = useState<string[]>([]);
 
   const {
     register,
@@ -71,11 +74,13 @@ const TaskForm: React.FC = () => {
       priority: 'medium',
       status: 'pending',
       tags: [],
+      dependencies: [],
     },
   });
 
-  // Watch tags to keep local state in sync
+  // Watch tags and dependencies to keep local state in sync
   const watchedTags = watch('tags');
+  const watchedDependencies = watch('dependencies');
 
   useEffect(() => {
     if (watchedTags) {
@@ -84,6 +89,32 @@ const TaskForm: React.FC = () => {
   }, [watchedTags]);
 
   useEffect(() => {
+    if (watchedDependencies) {
+      setDependencies(watchedDependencies);
+    }
+  }, [watchedDependencies]);
+
+  useEffect(() => {
+    // Fetch available tasks for dependencies
+    const fetchAvailableTasks = async () => {
+      try {
+        const response = await api.get('/api/tasks');
+        // Filter out the current task if editing
+        const filteredTasks = id 
+          ? response.data.data.tasks.filter((task: any) => task._id !== id)
+          : response.data.data.tasks;
+        
+        setAvailableTasks(filteredTasks.map((task: any) => ({ 
+          _id: task._id, 
+          title: task.title 
+        })));
+      } catch (error) {
+        console.error('Failed to fetch available tasks:', error);
+      }
+    };
+
+    fetchAvailableTasks();
+
     if (id) {
       fetchTask();
     }
@@ -105,6 +136,13 @@ const TaskForm: React.FC = () => {
       setValue('status', task.status);
       setValue('tags', task.tags || []);
       setTags(task.tags || []);
+      
+      // Set dependencies if they exist
+      if (task.dependencies && task.dependencies.length > 0) {
+        const dependencyIds = task.dependencies.map((dep: any) => dep._id);
+        setValue('dependencies', dependencyIds);
+        setDependencies(dependencyIds);
+      }
     } catch (error) {
       toast.error('Failed to fetch task details');
       navigate('/dashboard');
@@ -135,6 +173,12 @@ const TaskForm: React.FC = () => {
     }
   };
 
+  const handleDependencyChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedOptions = Array.from(e.target.selectedOptions, option => option.value);
+    setDependencies(selectedOptions);
+    setValue('dependencies', selectedOptions);
+  };
+
   const onSubmit = async (data: TaskFormData) => {
     try {
       setIsSubmitting(true);
@@ -146,12 +190,13 @@ const TaskForm: React.FC = () => {
       }
       
       console.log('Submitting task with tags:', data.tags);
+      console.log('Submitting task with dependencies:', data.dependencies);
       
       if (id) {
-        await api.patch(`/api/tasks/${id}`, {...data, tags});
+        await api.patch(`/api/tasks/${id}`, {...data, tags, dependencies});
         toast.success('Task updated successfully');
       } else {
-        await api.post('/api/tasks', {...data, tags});
+        await api.post('/api/tasks', {...data, tags, dependencies});
         toast.success('Task created successfully');
       }
       
@@ -405,6 +450,55 @@ const TaskForm: React.FC = () => {
                 value={tag} 
               />
             ))}
+          </div>
+
+          <div className="mb-4 animate-fadeIn animate-delay-500">
+            <label className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" htmlFor="dependencies">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5 inline mr-2 text-primary-500"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+              </svg>
+              Dependencies (Tasks that must be completed first)
+            </label>
+            <select
+              id="dependencies"
+              multiple
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors duration-200"
+              value={dependencies}
+              onChange={handleDependencyChange}
+            >
+              {availableTasks.map(task => (
+                <option 
+                  key={task._id} 
+                  value={task._id}
+                  className="bg-white dark:bg-gray-700 text-gray-900 dark:text-white py-1"
+                >
+                  {task.title}
+                </option>
+              ))}
+            </select>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              Hold Ctrl (or Cmd on Mac) to select multiple tasks
+            </p>
+            {dependencies.length > 0 && (
+              <div className="mt-2">
+                <p className="text-sm text-gray-700 dark:text-gray-300">Selected dependencies:</p>
+                <ul className="list-disc list-inside text-sm text-gray-600 dark:text-gray-400 mt-1">
+                  {dependencies.map(depId => {
+                    const task = availableTasks.find(t => t._id === depId);
+                    return task ? (
+                      <li key={depId} className="animate-fadeIn">
+                        {task.title}
+                      </li>
+                    ) : null;
+                  })}
+                </ul>
+              </div>
+            )}
           </div>
 
           <div className="flex justify-end animate-fadeIn animate-delay-500">
